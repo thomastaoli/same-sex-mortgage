@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visible Gaps, Invisible Struggles</title>
+    <link rel="icon" href="logo.png">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="">
+    <meta property="og:url" content="https://github.com/thomastaoli/article-23/">
+    <meta property="og:image" content="https://github.com/thomastaoli/article-23/headerbg.png">
+    <meta property="og:description"
+        content="While analyses of the HMDA data suggest disparities in mortgage approval rates for same-sex and heterosexual couples, significant challenges remain hidden due to the lack of data collection on the LGBTQ+ community, which makes it almost impossible for researchers to investigate the issue.">
+    <meta property="article:author" content="Thomas Li, Tiffany Le, Lilou Margueron, Johanna Hänsel">
+
+    <!-- Google fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-size: 20px;
+            font-family: 'Nunito', sans-serif;
+            /* Nunito as a fallback for Avenir */
+            text-rendering: optimizeLegibility;
+            background: whitesmoke;
+            /* Dark blue background */
+            color: whitesmoke
+        }
+
+        .byline {
+            font-size: 1.1rem;
+            line-height: 0.75;
+            margin-top: 1.5rem;
+            font-weight: 500;
+            color: #666
+        }
+
+        .date {
+            font-size: 0.85rem;
+            line-height: 1;
+            margin-top: 10px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666
+        }
+
+        .content {
+            max-width: 640px;
+            margin: auto;
+            color: #666
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            padding: 3em 0;
+        }
+
+        a {
+            color: #f05349;
+        }
+
+        .footer {
+            background: #f4f4f4;
+            text-align: center;
+            font-size: 0.8em;
+            margin-top: 4em;
+            padding: 4em 0;
+        }
+
+        figure {
+            margin: 0;
+            padding-bottom: 1.2em;
+        }
+
+        figcaption {
+            font-size: 0.8em;
+            text-align: center;
+            margin-top: 0.5em;
+            color: #666;
+        }
+
+        h1 {
+            font-family: 'DM Serif Text', serif;
+            font-weight: bold;
+            font-size: 3em;
+            line-height: 1;
+            color: #666
+        }
+
+        h2 {
+            font-family: 'DM Serif Text', serif;
+            font-weight: bold;
+            font-size: 1.3em;
+            line-height: 1;
+            color: #666
+        }
+
+        .hr-lines {
+            position: relative;
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+            font-family: 'DM Serif Text', serif;
+            font-size: 35px;
+            font-weight: 600
+        }
+
+        .subhead {
+            font-family: 'Nunito', sans-serif;
+            text-align: center;
+            color: #666
+        }
+
+        iframe,
+        img,
+        video {
+            max-width: 100%;
+        }
+
+        p {
+            line-height: 1.6;
+            margin: 0;
+            padding-bottom: 1.2em;
+        }
+
+        ul {
+            margin: 0;
+            padding-bottom: 1em;
+            line-height: 1.6;
+        }
+
+        iframe {
+            padding-bottom: 1.2em;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            background: #fff880;
+        }
+
+        /* margin on mobile */
+        @media (max-width: 640px) {
+            body {
+                font-size: 18px;
+            }
+
+            .content {
+                padding-left: 0.5em;
+                padding-right: 0.5em;
+            }
+
+            .header-container {
+                padding-left: 0.5em;
+                padding-right: 0.5em;
+            }
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            /* Adjust the height based on the width while maintaining aspect ratio */
+        }
+
+        .portrait {
+            float: center;
+            /* Position the portrait to the left */
+            width: 80px;
+            /* Adjust the width as needed */
+            height: 80px;
+            /* Adjust the height as needed */
+            border-radius: 50%;
+            /* Make the portrait round */
+            margin-right: 15px;
+            /* Add some space between the portrait and the text */
+            object-fit: cover;
+            /* Ensure the image covers the area without distortion */
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+
+        .bio {
+            flex: 1;
+        }
+
+        .bio h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .bio p {
+            margin: 0;
+            color: #666;
+        }
+    </style>
+    <link href="scrolly-styles.css" rel="stylesheet">
+    <script src="https://unpkg.com/intersection-observer@0.5.1/intersection-observer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollama/3.2.0/scrollama.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.3.0/d3.min.js"></script>
+</head>
+
+<body>
+    <div class="header-container">
+        <div class="header" style="text-align: center">
+            <h1>Visible Gaps, Invisible Struggles</h1>
+            <h1 style="font-size: 28px;">Lack of data on sexual orientation and gender identity obscures
+                LGBTQ+ housing disparities </h1>
+            <p class="subhead">Same-sex couples have more difficulties getting a loan for a house, according to an
+                analysis of Home Mortgage Disclosure Act data. They are more likely to be denied or quoted at higher
+                interest rates. But the lack of data collection on the LGBTQ+ community makes it almost impossible to
+                get the full picture of the challenges they face.</p>
+        </div>
+    </div>
+
+    <div style="text-align: center">
+        <img src="header.png" style="width:30%;text-align: center">
+    </div>
+
+    <div style="text-align: center">
+        <p class="byline">By <a href="www.linkedin.com/in/thomas-tao-li">Thomas Li</a>, <a
+                href="https://www.linkedin.com/in/tiffany-le-88a8299a/">Tiffany Le</a>, <a
+                href="https://www.linkedin.com/in/liloumargueron/">Lilou Margueron</a>, <a
+                href="https://www.linkedin.com/in/johannahaensel/">Johanna Hänsel
+            </a></p>
+        <p class="date">May 5, 2024</p>
+    </div>
+
+    <h2 class="hr-lines" style="margin-top: 30px; margin-bottom: 10px;"> -- </h2>
+
+    <div class="content">
+        <p>In 1990, same-sex borrowers were 73% more likely to be rejected for a mortgage in Boston, according to an
+            analysis of the Boston Fed data. At the time, ten US states criminalized what they called “consensual
+            sodomy.” </p>
+        <p>Today, same-sex couples can get married. Mortgage discrimination based on sexual orientation is illegal
+            following <a
+                href="https://www.whitehouse.gov/briefing-room/presidential-actions/2021/01/20/executive-order-preventing-and-combating-discrimination-on-basis-of-gender-identity-or-sexual-orientation/">Executive
+                Order 13988</a>. Buying a house should be as easy for them as for heterosexual couples. But
+            discrimination against same-sex couples in housing remains. </p>
+        <p>We analyzed HMDA data — the most comprehensive source of information about the US mortgage market — and found
+            that in 2022, same-sex borrowers were 32.4% more likely to be rejected when applying for a mortgage than
+            different-sex borrowers with similar demographic characteristics — like race. Same sex applicants in
+            democratic states are also more likely to get a mortgage than in republican states. </p>
+    </div>
+
+    <section id="scrolly-images" class="scrolly-container">
+        <div class="sticky-thing">
+            <img src="us1.png">
+        </div>
+        <div class="steps-container">
+            <div style="color: #ffffff" class="step" id="step1">
+                <div>
+                    <p>HMDA data includes mortgages filed within the entire country. The 2022 data includes more than 15
+                        million cases.</p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="step2">
+                <div>
+                    <p>Within the database, we observed mortgage cases filed by same-sex borrowers. While Los Angeles
+                        and Chicago have the most cases, many cases can also be observed in Washington,
+                        Tri-State area, New England, South Florida, and emerging Texas cities.</p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="step3">
+                <div>
+                    <p>These cases are observed in 3/5 of U.S. counties, according to our methodology*.</p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="step4">
+                <div>
+                    <p>However, our analysis of HMDA data shows more than 2/3 of such counties have lower approval rate
+                        for observed same-sex borrowers.</p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="step5">
+                <div>
+                    <p>Houston, TX, for example, had more than 260 such borrowers in 2022 - one of the
+                        highest in the country. However, their average approval rate is 10% less than borrowers with
+                        similar demographic characters.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <h2 class="hr-lines" style="margin-top: 30px; margin-bottom: 10px;"> - Housing rights for LGBTQ
+        community in the U.S. - </h2>
+
+    <br>
+
+    <div class="content">
+        <p>Systemic discrimination in housing has existed for a long time. When Congress passed the Fair Housing Act in
+            1968, it was a landmark decision. For the first time, lenders and other housing professionals couldn’t
+            discriminate against people based on race, color, religion and national origin anymore. Six years later, a
+            new category was added: sex. But back then, it had nothing to do with sexual
+            orientation or gender identity. </p>
+    </div>
+
+    <iframe
+        src='https://cdn.knightlab.com/libs/timeline3/latest/embed/index.html?source=1bdJJ_BoYKpdy4togcRGpFTGUR60mr9EWqahJf52QEs0&font=Default&lang=en&initial_zoom=2&height=650'
+        width='100%' height='650' webkitallowfullscreen mozallowfullscreen allowfullscreen frameborder='0'></iframe>
+
+    <div class="content">
+        <p>Each of these timestamps constituted steps forward for the housing rights of the LGBTQ+ community nationwide.
+            In 2021, sexual orientation became part of the categories protected by the Federal Housing Act. Same-sex
+            couples who believe they faced discrimination can file complaints to the US Department of Housing and Urban
+            Development. But at the state level, <a
+                href="https://www.lgbtmap.org/equality-maps/non_discrimination_laws">nondiscrimination laws vary</a>.
+            Same-sex couples are not protected by
+            their state law everywhere.</p>
+    </div>
+
+    <h2 class="hr-lines" style="margin-top: 30px; margin-bottom: 10px;"> - Why HMDA data fails to account for LGBTQ+
+        communities - </h2>
+
+    <br>
+
+    <div class="content">
+        <p>Journalists and researchers who want to study discrimination based on sexual orientation or gender identity
+            in mortgages often turn to the HMDA data, one of the few datasets publicly available. </p>
+        <p>Congress enacted the Home Mortgage Disclosure Act in 1975. It requires financial institutions to keep data
+            and records about their lending activity and to report and publicly disclose this information every year
+            through the Consumer Financial Protection Bureau (CFPB). </p>
+        <p>HMDA data is collected to ensure transparency in lending and identify when discrimination could be happening.
+            But it doesn’t include enough information to verify whether members of the LGBTQ+ community are treated
+            fairly. </p>
+        <p>In 2019, Hua Sun and Lei Gao, two researchers from Iowa State University, decided to look into lending
+            practices for same-sex borrowers based on the HMDA data. They suggested a method to infer the sexual
+            orientation of a couple by looking at whether one’s sex matches with the co-applicant’s – if it’s the same,
+            then this is a same-sex couple. They found that from 1990 to 2015, the approval rate for same-sex couples
+            was 3.8% lower than for heterosexual couples nationwide. </p>
+        <p>“Even a 1% difference is quite significant,” Sun said. “It can mean a lot.” </p>
+
+        <h2 style="color: black;">Approval rate in 2022 for same-sex couples to get mortgages in home buying* by
+            U.S.
+            counties</h2>
+        <label style="color: black;" for="stateSelect">Select State:</label>
+        <select id="stateSelect" onchange="updateCounties()">
+            <option value="">--Select a State--</option>
+        </select>
+
+        <label style="color: black;" for="countySelect">Select County:</label>
+        <select id="countySelect" onchange="displayData()">
+            <option value="">--Select a County--</option>
+        </select>
+
+        <div id="results">
+            <h2 style="color: black;">Results:</h2>
+            <p style="color: black;" id="caseNumber">Number of Mortgage Cases with Same-sex Borrowers: </p>
+            <p style="color: black;" id="approvalRate">Approval rate of same-sex borrowers: </p>
+            <p style="color: black;" id="publicRate">Approval rate of borrowers with similar demographic character:
+            </p>
+        </div>
+        <script src="script.js"></script>
+
+        <p style="font-size: 10pt; color: black;">*Data Source: HMDA Data, 2022. While the public dataset does not
+            capture sexual orientation, our analysis
+            includes inferred cases of borrowers and co-borrowers of the same sex but different races. The term
+            "borrowers with similar demographic characteristics" refers to individuals of different racial
+            backgrounds
+            and different sexes. Approval rates encompass "loan initiated," "approved but not accepted," and
+            "denied"
+            statuses, with the first two categories classified as "approved." For details of our study, please refer
+            to
+            the methodology section.</p>
+        <br>
+
+        <p>But Sun also acknowledged that even though their results hinted at unfair lending, their analysis lacked
+            important information, like credit scores, or explicit information about a couples’ sexual orientation.
+            There was no way to tell for sure. </p>
+        <p>When we looked at the 2022 HMDA data, we also saw a gap in approval rates for same-sex couples and
+            heterosexual couples, even after controlling important variables in the data. But like Sun and Gao, we’re
+            missing key details to identify whether discrimination is going on. </p>
+        <p>“I will perhaps issue a general caution on HMDA data,” a CFPB spokesperson told us. “It provides a signal of
+            risk, but not proof of discrimination, especially if you’re using the public data, which doesn’t include
+            important variables like credit score. It is not evidence of illegal action.”</p>
+        <p>The CFPB strips credit scores from the public dataset because of the mortgage industry’s lobbying efforts,
+            quoting borrower privacy reasons, The Markup wrote in a <a
+                href="https://themarkup.org/denied/2021/08/25/the-secret-bias-hidden-in-mortgage-approval-algorithms">story</a>
+            about racial bias in mortgage-approval
+            algorithms. </p>
+        <p>At the moment, the CFPB has no plans to include information about the sexual orientation or gender identity
+            of its borrowers in the HMDA data.“It’s a multi-year process. It takes an enormous effort, both from the
+            Bureau and the industry to implement,” the spokesperson said. </p>
+        <p>This year, a <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4597809">new study</a> published in
+            Social Science Research Network using confidential administrative data —
+            including credit scores and the age of borrowers — found that same-sex couples were 8.8% more likely to be
+            denied a mortgage than heterosexual couples in the U.S. from 2018 to 2021. Same-sex couples also had to pay
+            0.8% more in interest rates than others. </p>
+        <p>In addition, researchers found that same-sex couples were 53.9% less likely to pay back the loan than
+            heterosexual
+            couples. They thought this might explain some of the observed differences in mortgage approval. Instead of
+            Sun and Gao, who used race as a filter, they only looked at applicants whose age difference was less than 25
+            years, to make sure they didn’t include family members buying a house together.</p>
+    </div>
+
+    <h2 class="hr-lines" style="margin-top: 50px; margin-bottom: 10px;"> - Why are LGBTQ+ people at a disadvantage when
+        applying for mortgages - </h2>
+
+    <br>
+
+    <div class="content">
+        <p>Gary Boyer, a mortgage broker who created his own company called Mortgage Monkey to serve the LGBTQ+
+            community, believes that the reason why same-sex couples are less likely to obtain a loan for their house is
+            implicit bias.</p>
+        <p>“A lot of times, people don’t realize that they’re being discriminatory,” he said. “It’s not like Bank of
+            America runs around and says, ‘We don’t wanna deal with homos.’”</p>
+        <p>After an applicant submits their documents to a financial institution, the underwriter, who assesses risks of
+            the mortgage application, gives a final approval or denial. </p>
+        <p>“I have definitely seen underwriting discrimination. But it’s not ‘because they’re gay or lesbian.’ Instead,
+            it’s rather: ‘Why are they doing this? Why don’t they have that?’ It’s because not everything in their life
+            is exactly heteronormative. Why don’t they have a joint credit? Why is the lease to prove a rental history
+            only in one person’s name?”</p>
+        <p>Today, the underwriting process can be automated. A computer analyzes risks based on the borrowers’
+            information to make a final decision. Some lenders use it to help human underwriters while others depend on
+            it entirely. Analyses have shown that mortgage-approval algorithms could treat people of color unfairly.
+            This can happen because algorithms rely on historical data, which can reflect past discriminatory practices,
+            leading to biased outcomes against certain groups. </p>
+        <p>The disparity the data shows is only the tip of the iceberg. There’s been no study to investigate the reasons
+            behind it. And there’s more to discriminatory patterns against LGBTQ+ communities that the data cannot
+            capture, according to industry experts. </p>
+        <p>Boyer said that 8 to 10% of the clients he works with come to him after having a bad experience with certain
+            financial institutions due to their sexual orientation. But most of this wouldn’t appear in the
+            HMDA data. </p>
+        <p>“A lot of the discrimination in my industry is when LGBTQ+ people are encouraged not to apply,” Boyer said.
+            “Somebody makes them feel uncomfortable and unwelcome. I find that often, people are traumatized by the
+            experience and it sometimes takes them years before they come back and do it again.”</p>
+        <p>Boyer explained that lenders could sometimes be openly discriminatory, either by saying “we don’t want your
+            kind here,” or by refusing to acknowledge a same-sex couple’s relationship: “your roommate’s income doesn’t
+            count.” As a consequence, same-sex couples can be pushed to either apply as a single applicant, which
+            undermines their chances of getting a mortgage, or not apply at all. Sometimes, lenders tell them they
+            wouldn’t qualify. </p>
+    </div>
+
+    <section id="new-scrolly-images" class="scrolly-container">
+        <div class="sticky-thing">
+            <img src="mortgage0.jpeg">
+        </div>
+        <div class="steps-container">
+            <div style="color: #ffffff" class="step" id="new-step1">
+                <div>
+                    <p>Lenders can make assumptions on applicants’ gender identity and sexual orientation, either when
+                        they come in person, or through personal file. </p>
+                    <p>Some LGBTQ+ people get discouraged from applying because of discriminatory comments.</p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="new-step2">
+                <div>
+                    <p>Sexual orientation or gender identity doesn’t appear on the mortgage application file, but “sex”
+                        does. Marital status is not mentioned.
+                    </p>
+                </div>
+            </div>
+            <div style="color: #ffffff" class="step" id="new-step3">
+                <div>
+                    <p>Here, it's either implicit bias from the underwriter or the couple is at a structural
+                        disadvantage.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="content">
+        <p>Discrimination against same-sex couples in housing starts in high school, according to David Siroty, a
+            representative of the LGBTQ+ Real Estate Alliance. Early discrimination based on someone’s gender identity
+            or sexual orientation and lack of family support can impact one’s grades, ability to go to college, ultimate
+            income, and ability to obtain a good credit score when applying for a mortgage. </p>
+        <p>Like Boyer, Siroty believes that discrimination against same-sex couples in the mortgage industry is due to
+            unconscious bias. He also explained that a part of the LGBTQ+ community, especially trans people, sometimes
+            struggle during mortgage applications because of name changes — when their name doesn’t match the one that’s
+            written on their official documents if they didn’t update it on paper beforehand — or because of their
+            pronouns. </p>
+        <p>Samantha Fornari, a trans woman, changed her name in 2021, and wanted to buy a house at the end of 2023. She
+            updated her name with the Social Security Administration and on her birth certificate, but not with the
+            credit bureau. After she applied for a mortgage pre-approval at Dearborn Federal State Bank, she received a
+            phone call from the bank. They were unable to obtain her credit report from Equifax for “security reasons”
+            and couldn’t accept her application. </p>
+        <p>“They sent me an email with a picture showing the actual error. It showed the applicant file was potentially
+            fraudulent or misused,” Fornari said. </p>
+        <p>There’s been limited enforcement actions regarding discrimination against same-sex couples. Lenders can make
+            assumptions about people’s sexual orientation or gender identity based on their application. In Samantha’s
+            case, she knows they could’ve guessed.</p>
+        <p>“I wouldn’t have any other reason to change my name,” she said. On the phone, she also felt that her voice
+            “wasn’t the most feminine.” </p>
+        <p>But the mortgage application doesn’t explicitly require information about an applicant’s gender identity or
+            sexual orientation. There’s no data about it in the HMDA. Proving discrimination is almost impossible.</p>
+    </div>
+
+
+
+    <h2 class="hr-lines" style="margin-top: 30px; margin-bottom: 10px;"> - Methodology - </h2>
+    <br>
+    <div class="content">
+        <p>To investigate the disparity of same-sex borrowers, we used the Home Mortgage Disclosure Act (HMDA) data,
+            which is a comprehensive source of publicly available information on the U.S. mortgage market. The 2022
+            dataset includes more than 15 million applications.</p>
+
+        <p>While the HMDA data doesn’t include information about applicants’ sexual orientation, we attempted to infer a
+            couples’ sexual orientation based on the disclosure of the sexes of the borrower and co-borrower in the
+            data. To make sure we wouldn’t accidentally include family members or relatives, we’re only looking at cases
+            in which the two borrowers are from different races, a technique suggested by <a href="https://www.pnas.org/doi/10.1073/pnas.1903592116">Sun and Gao (2019)</a>.</p>
+
+        <p>As we ran a multivariate analysis on the national model for conventional applications, the following
+            variables were considered:</p>
+        <ul>
+            <li>Race</li>
+            <li>Sex</li>
+            <li>Whether the application had a co-applicant</li>
+            <li>Age</li>
+            <li>Income</li>
+            <li>Loan amount</li>
+            <li>Property value</li>
+            <li>Mortgage term</li>
+            <li>Credit model used</li>
+            <li>Debt-to-income ratio</li>
+            <li>Combined loan-to-value ratio</li>
+            <li>The automated underwriting system used</li>
+            <li>The ratio between the median income of the census tract where the property is located and the median
+                income of the metro area</li>
+            <li>Percentage of inferred same-sex couples of the county where the loan was issued (added variable to HMDA
+                data)</li>
+        </ul>
+        <p>When holding the independent variables constant against the dependent variable of being approved or denied a
+            mortgage, we found that lenders are more likely to deny cases filed by applicants with same sex.</p>
+    </div>
+
+    <br>
+
+    <div class="card-container">
+        <div class="card">
+            <img class="avatar" src="thomas.jpg" alt="Author 1 Avatar">
+            <div class="bio">
+                <h3 style="color: #f05349; font-size: 20px">
+                    <a href="https://www.linkedin.com/in/thomas-tao-li/"
+                        style="text-decoration: none; color: inherit;">Thomas Li</a>
+                </h3>
+                <p style="font-size: 16px;">Thomas is a data journalist. He covers business and finance, climate change
+                    and technology.</p>
+            </div>
+        </div>
+        <div class="card">
+            <img class="avatar" src="tiffany.jpg" alt="Author 2 Avatar">
+            <div class="bio">
+                <h3 style="color: #f05349; font-size: 20px">
+                    <a href="https://www.linkedin.com/in/tiffany-le-88a8299a/"
+                        style="text-decoration: none; color: inherit;">Tiffany Le</a>
+                </h3>
+                <p style="font-size: 16px;">Tiffany is a Chinese journalist who loves data interpretation and
+                    multimedia production. She covers business stories and global news.</p>
+            </div>
+        </div>
+        <div class="card">
+            <img class="avatar" src="lilou.jpg" alt="Author 3 Avatar">
+            <div class="bio">
+                <h3 style="color: #f05349; font-size: 20px">
+                    <a href="https://www.linkedin.com/in/liloumargueron/"
+                        style="text-decoration: none; color: inherit;">Lilou Margueron</a>
+                </h3>
+                <p style="font-size: 16px;">Lilou is an international multimedia reporter from France who likes to tell
+                    stories about various
+                    social issues.</p>
+            </div>
+        </div>
+        <div class="card">
+            <img class="avatar" src="johanna.jpg" alt="Author 4 Avatar">
+            <div class="bio">
+                <h3 style="color: #f05349; font-size: 20px">
+                    <a href="https://www.linkedin.com/in/johannahaensel/"
+                        style="text-decoration: none; color: inherit;">Johanna Hänsel</a>
+                </h3>
+                <p style="font-size: 16px;">Johanna is a science and environmental journalist focused on investigative
+                    reporting and multimedia
+                    storytelling.</p>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div style="text-align: center">
+        <img src="skyline.png" style="width:50%; text-align: center">
+    </div>
+
+    <br>
+
+    <div class="content" style="text-align: center;">
+        &copy; Queer Tech on 120th St
+    </div>
+
+    <br>
+
+    <script>
+        (() => {
+            const scroller = scrollama()
+
+            scroller
+                .setup({
+                    parent: document.querySelector("#scrolly-images"),
+                    step: ".step",
+                    offset: 0.6,
+                    debug: false,
+                })
+                .onStepEnter(function ({ element, index, direction }) {
+                    // Dispatch the event as before
+                    const event = new CustomEvent("stepin", { detail: { direction: direction } })
+                    element.dispatchEvent(event)
+                })
+                .onStepExit(function ({ element, index, direction }) {
+                    // Dispatch the event as before
+                    const event = new CustomEvent("stepout", { detail: { direction: direction } })
+                    if (direction === "up" && element.previousElementSibling) {
+                        const event = new CustomEvent("stepin", { detail: { direction: direction } })
+                        element.previousElementSibling.dispatchEvent(event)
+                    }
+                })
+
+            window.addEventListener("resize", scroller.resize)
+        })()
+
+        /*
+        This part sets up your actions. In this case, it's changing the image in the scrolly container.
+        */
+        function changeImage(stepElement, imageUrl) {
+            const imageElement = d3.select(stepElement.closest(".scrolly-container")).select("img");
+            imageElement.attr("src", imageUrl); // Directly change the source of the image without fading effects.
+        }
+
+        /*
+        Event listeners for stepin, change image as per step.
+        */
+        d3.select("#step1").on('stepin', (e) => {
+            changeImage(e.target, "us1.png");
+        });
+
+        d3.select("#step2").on('stepin', (e) => {
+            changeImage(e.target, "us3.png");
+        });
+
+        d3.select("#step3").on('stepin', (e) => {
+            changeImage(e.target, "us2.png");
+        });
+
+        d3.select("#step4").on('stepin', (e) => {
+            changeImage(e.target, "us4.png");
+        });
+
+        d3.select("#step5").on('stepin', (e) => {
+            changeImage(e.target, "us5.png");
+        });
+    </script>
+
+    <script>
+        (() => {
+            const scroller = scrollama()
+
+            scroller
+                .setup({
+                    parent: document.querySelector("#new-scrolly-images"),
+                    step: ".step",
+                    offset: 0.6,
+                    debug: false,
+                })
+                .onStepEnter(function ({ element, index, direction }) {
+                    // Dispatch the event as before
+                    const event = new CustomEvent("stepin", { detail: { direction: direction } })
+                    element.dispatchEvent(event)
+                })
+                .onStepExit(function ({ element, index, direction }) {
+                    // Dispatch the event as before
+                    const event = new CustomEvent("stepout", { detail: { direction: direction } })
+                    if (direction === "up" && element.previousElementSibling) {
+                        const event = new CustomEvent("stepin", { detail: { direction: direction } })
+                        element.previousElementSibling.dispatchEvent(event)
+                    }
+                })
+
+            window.addEventListener("resize", scroller.resize)
+        })()
+
+        /*
+        This part sets up your actions. In this case, it's changing the image in the scrolly container.
+        */
+        function changeImage(stepElement, imageUrl) {
+            const imageElement = d3.select(stepElement.closest(".scrolly-container")).select("img");
+            // Directly change the source of the image without fading effects
+            imageElement.attr("src", imageUrl);
+        }
+
+        d3.select("#new-step1").on('stepin', (e) => {
+            changeImage(e.target, "mortgage1.jpeg");
+        });
+
+        d3.select("#new-step2").on('stepin', (e) => {
+            changeImage(e.target, "mortgage2.jpeg");
+        });
+
+        d3.select("#new-step3").on('stepin', (e) => {
+            changeImage(e.target, "mortgage3.jpeg");
+        });
+    </script>
+
+    <style>
+        /* Change this to adjust the padding between steps */
+        .step {
+            margin-bottom: 70vh;
+        }
+    </style>
+</body>
+
+</html>
